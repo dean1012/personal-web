@@ -100,6 +100,7 @@ jobs:
         env:
           WEBHOOK_URL: ${{ vars.GRAYHAVEN_DEPLOY_WEBHOOK_URL }}
           WEBHOOK_SECRET: ${{ secrets.GRAYHAVEN_DEPLOY_WEBHOOK_SECRET }}
+          WEBHOOK_DISABLE_SSL_VERIFICATION: ${{ vars.GRAYHAVEN_DEPLOY_DISABLE_SSL_VERIFICATION }}
           GITHUB_REPOSITORY_NAME: ${{ github.repository }}
           GITHUB_REF_NAME_FULL: ${{ github.ref }}
           GITHUB_SHA_VALUE: ${{ github.sha }}
@@ -117,9 +118,9 @@ jobs:
 
           webhook_url = os.environ.get("WEBHOOK_URL", "").strip()
           webhook_secret = os.environ.get("WEBHOOK_SECRET", "")
+          disable_ssl_verification = os.environ.get("WEBHOOK_DISABLE_SSL_VERIFICATION", "").lower() == "true"
           repository = os.environ["GITHUB_REPOSITORY_NAME"]
-          # TEMPORARY: staging webhook testing uses a Let's Encrypt staging certificate.
-          ssl_context = ssl._create_unverified_context()
+          ssl_context = ssl._create_unverified_context() if disable_ssl_verification else None
 
           if not webhook_url:
               raise SystemExit("GRAYHAVEN_DEPLOY_WEBHOOK_URL is not configured")
