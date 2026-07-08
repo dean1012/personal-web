@@ -2,11 +2,10 @@
 name: Deploy
 
 "on":
-  workflow_run:
-    workflows:
-      - CI
-    types:
-      - completed
+  push:
+    branches:
+      - main
+      - dev
   workflow_dispatch:
 
 permissions:
@@ -16,18 +15,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     if: >-
-      (
-        github.event_name == 'workflow_run'
-        && github.event.workflow_run.conclusion == 'success'
-        && (
-          github.event.workflow_run.head_branch == 'main'
-          || github.event.workflow_run.head_branch == 'dev'
-        )
-        && !contains(github.event.workflow_run.head_commit.message, '[skip deploy]')
-      )
-      || (
-        github.event_name == 'workflow_dispatch'
-        && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+      && (
+        github.event_name != 'push'
+        || !contains(github.event.head_commit.message, '[skip deploy]')
       )
 
     steps:
@@ -37,15 +29,10 @@ jobs:
           WEBHOOK_SECRET: ${{ secrets.GRAYHAVEN_DEPLOY_WEBHOOK_SECRET }}
           WEBHOOK_DISABLE_SSL_VERIFICATION: ${{ vars.GRAYHAVEN_DEPLOY_DISABLE_SSL_VERIFICATION }}
           WEBHOOK_DISABLED: ${{ vars.GRAYHAVEN_DEPLOY_WEBHOOK_DISABLE }}
-          WORKFLOW_EVENT_NAME: ${{ github.event_name }}
-          WORKFLOW_RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
-          WORKFLOW_RUN_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
-          WORKFLOW_RUN_SHA: ${{ github.event.workflow_run.head_sha }}
-          WORKFLOW_RUN_ACTOR: ${{ github.event.workflow_run.triggering_actor.login }}
-          WORKFLOW_DISPATCH_REPOSITORY: ${{ github.repository }}
-          WORKFLOW_DISPATCH_REF: ${{ github.ref }}
-          WORKFLOW_DISPATCH_SHA: ${{ github.sha }}
-          WORKFLOW_DISPATCH_ACTOR: ${{ github.actor }}
+          GITHUB_REPOSITORY_NAME: ${{ github.repository }}
+          GITHUB_REF_NAME_FULL: ${{ github.ref }}
+          GITHUB_SHA_VALUE: ${{ github.sha }}
+          GITHUB_ACTOR_NAME: ${{ github.actor }}
         run: |
           python3 - <<'PY'
           import hashlib
@@ -61,22 +48,10 @@ jobs:
               print("Deployment webhook is disabled")
               raise SystemExit(0)
 
-          event_name = os.environ["WORKFLOW_EVENT_NAME"]
-          if event_name == "workflow_run":
-              branch = os.environ["WORKFLOW_RUN_BRANCH"]
-              repository = os.environ["WORKFLOW_RUN_REPOSITORY"]
-              sha = os.environ["WORKFLOW_RUN_SHA"]
-              actor = os.environ["WORKFLOW_RUN_ACTOR"]
-              ref = f"refs/heads/{branch}"
-          else:
-              repository = os.environ["WORKFLOW_DISPATCH_REPOSITORY"]
-              ref = os.environ["WORKFLOW_DISPATCH_REF"]
-              sha = os.environ["WORKFLOW_DISPATCH_SHA"]
-              actor = os.environ["WORKFLOW_DISPATCH_ACTOR"]
-
           webhook_url = os.environ.get("WEBHOOK_URL", "").strip()
           webhook_secret = os.environ.get("WEBHOOK_SECRET", "")
           disable_ssl_verification = os.environ.get("WEBHOOK_DISABLE_SSL_VERIFICATION", "").lower() == "true"
+          repository = os.environ["GITHUB_REPOSITORY_NAME"]
           ssl_context = ssl._create_unverified_context() if disable_ssl_verification else None
 
           if not webhook_url:
@@ -85,15 +60,15 @@ jobs:
               raise SystemExit("GRAYHAVEN_DEPLOY_WEBHOOK_SECRET is not configured")
 
           payload = {
-              "ref": ref,
-              "after": sha,
+              "ref": os.environ["GITHUB_REF_NAME_FULL"],
+              "after": os.environ["GITHUB_SHA_VALUE"],
               "repository": {
                   "full_name": repository,
                   "clone_url": f"https://github.com/{repository}.git",
                   "html_url": f"https://github.com/{repository}",
               },
               "sender": {
-                  "login": actor,
+                  "login": os.environ["GITHUB_ACTOR_NAME"],
               },
           }
           body = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
