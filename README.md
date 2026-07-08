@@ -1,6 +1,7 @@
 # Jerry Smith Personal Domain
 
 [![CI](https://github.com/dean1012/personal-web/actions/workflows/ci.yml/badge.svg)](https://github.com/dean1012/personal-web/actions/workflows/ci.yml)
+[![Deploy](https://github.com/dean1012/personal-web/actions/workflows/deploy.yml/badge.svg)](https://github.com/dean1012/personal-web/actions/workflows/deploy.yml)
 
 This repository contains the source code to my personal domain. It is public
 for transparency and review.
