@@ -1,8 +1,10 @@
 # Jerry Smith Personal Domain
 
-[![CI](https://github.com/dean1012/personal-web/actions/workflows/ci.yml/badge.svg)](https://github.com/dean1012/personal-web/actions/workflows/ci.yml)
-[![Prod Deploy](https://github.com/dean1012/personal-web/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/dean1012/personal-web/actions/workflows/deploy.yml?query=branch%3Amain)
-[![Dev Deploy](https://github.com/dean1012/personal-web/actions/workflows/deploy.yml/badge.svg?branch=dev)](https://github.com/dean1012/personal-web/actions/workflows/deploy.yml?query=branch%3Adev)
+| Check | Status |
+| --- | --- |
+| CI | [![CI](https://github.com/dean1012/personal-web/actions/workflows/ci.yml/badge.svg)](https://github.com/dean1012/personal-web/actions/workflows/ci.yml) |
+| Production | [![Prod Deploy](https://github.com/dean1012/personal-web/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/dean1012/personal-web/actions/workflows/deploy.yml?query=branch%3Amain) |
+| Development | [![Dev Deploy](https://github.com/dean1012/personal-web/actions/workflows/deploy.yml/badge.svg?branch=dev)](https://github.com/dean1012/personal-web/actions/workflows/deploy.yml?query=branch%3Adev) |
 
 This repository contains the source code to my personal domain. It is public
 for transparency and review.
