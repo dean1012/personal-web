@@ -45,6 +45,8 @@ commands, and contribution guidelines.
 
 ## License
 
+[Third-Party Notices](site/frontend/THIRD-PARTY-NOTICES.md)
+
 [MIT](LICENSE)
 
 [Back to top](#jerry-smith-personal-domain)

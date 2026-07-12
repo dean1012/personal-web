@@ -169,6 +169,17 @@ p {
   flex: 0 0 auto;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @media (width <= 40rem) {
   .site-shell {
     padding: 1rem;
